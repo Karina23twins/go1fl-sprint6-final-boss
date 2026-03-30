@@ -67,8 +67,8 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// создаём локальный файл
-	// localFileName := time.Now().UTC().String() + filepath.Ext(handler.Filename)
-	localFileName := time.Now().UTC().Format("2006-01-02_15-04-05") + filepath.Ext(handler.Filename)
+	localFileName := time.Now().UTC().String() + filepath.Ext(handler.Filename)
+	// localFileName := time.Now().UTC().Format("2006-01-02_15-04-05") + filepath.Ext(handler.Filename)
 	localFile, err := os.Create(localFileName)
 	if err != nil {
 		log.Println("error creating file:", err)
