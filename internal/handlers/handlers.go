@@ -98,10 +98,8 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Write(convertedString) // отправляем в ответ
-		w.Header().Set("Content-Type", "text/html")
-
-		//	возврат результата конвертации строки:
-		// fmt.Fprintln(w, convertedString)
+		// w.Header().Set("Content-Type", "text/html")
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	}
 
 }
