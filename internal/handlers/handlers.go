@@ -1,12 +1,14 @@
 package handlers
 
 import (
-	"fmt"
+	// "fmt"
 	"io"
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Yandex-Practicum/go1fl-sprint6-final/internal/service"
@@ -20,8 +22,7 @@ func HandleReturnHtml(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// if _, err := os.Stat("/home/arina/go1fl-sprint6-final-boss/index.html"); os.IsNotExist(err) {
-		if _, err := os.Stat("index.html"); os.IsNotExist(err) {
+	if _, err := os.Stat("index.html"); os.IsNotExist(err) {
 		log.Println("error: file is not exist")
 		http.Error(w, "error: file is not exist", http.StatusInternalServerError)
 		return
@@ -31,7 +32,6 @@ func HandleReturnHtml(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// http.ServeFile(w, r, "/home/arina/go1fl-sprint6-final-boss/index.html")
 	http.ServeFile(w, r, "index.html")
 }
 
@@ -61,32 +61,47 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// передаем эти данные в функцию автоопределения из пакета service
-	convertedString, err := service.ConvertString(string(data))
-	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	contentType := mime.TypeByExtension(filepath.Ext(handler.Filename))
+	isText := strings.HasPrefix(contentType, "text/")
+
+	if !isText {
+		w.Write(data)
+		w.Header().Set("Content-Type", "application/octet-stream")
+	} else {
+		// передаем эти данные в функцию автоопределения из пакета service
+		// convertedString, err := service.ConvertString(string(data))
+		convertedString, err := service.ConvertString(data) // data — []byte из io.ReadAll(file)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		// создаём локальный файл
+		localFileName := time.Now().UTC().String() + filepath.Ext(handler.Filename)
+		// localFileName := time.Now().UTC().Format("2006-01-02_15-04-05") + filepath.Ext(handler.Filename)
+		localFile, err := os.Create(localFileName)
+		if err != nil {
+			log.Println("error creating file:", err)
+			http.Error(w, "error creating file", http.StatusInternalServerError)
+			return
+		}
+		defer localFile.Close()
+
+		// записываем в локальный файл конвертированную строку
+		// Сохраняем и отправляем как байты
+
+		_, err = localFile.Write(convertedString)
+		if err != nil {
+			log.Println("error writing to file:", err)
+			http.Error(w, "error writing to file", http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(convertedString) // отправляем в ответ
+		w.Header().Set("Content-Type", "text/html")
+
+		//	возврат результата конвертации строки:
+		// fmt.Fprintln(w, convertedString)
 	}
 
-	// создаём локальный файл
-	localFileName := time.Now().UTC().String() + filepath.Ext(handler.Filename)
-	// localFileName := time.Now().UTC().Format("2006-01-02_15-04-05") + filepath.Ext(handler.Filename)
-	localFile, err := os.Create(localFileName)
-	if err != nil {
-		log.Println("error creating file:", err)
-		http.Error(w, "error creating file", http.StatusInternalServerError)
-		return
-	}
-	defer localFile.Close()
-
-	// записываем в локальный файл конвертированную строку
-	_, err = localFile.Write([]byte(convertedString))
-	if err != nil {
-		log.Println("error writing to file:", err)
-		http.Error(w, "error writing to file", http.StatusInternalServerError)
-		return
-	}
-
-	//	возврат результата конвертации строки:
-	fmt.Fprintln(w, convertedString)
 }
