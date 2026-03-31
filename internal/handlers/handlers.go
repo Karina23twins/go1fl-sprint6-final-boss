@@ -20,7 +20,8 @@ func HandleReturnHtml(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := os.Stat("/home/arina/go1fl-sprint6-final-boss/index.html"); os.IsNotExist(err) {
+	// if _, err := os.Stat("/home/arina/go1fl-sprint6-final-boss/index.html"); os.IsNotExist(err) {
+		if _, err := os.Stat("index.html"); os.IsNotExist(err) {
 		log.Println("error: file is not exist")
 		http.Error(w, "error: file is not exist", http.StatusInternalServerError)
 		return
@@ -30,7 +31,8 @@ func HandleReturnHtml(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.ServeFile(w, r, "/home/arina/go1fl-sprint6-final-boss/index.html")
+	// http.ServeFile(w, r, "/home/arina/go1fl-sprint6-final-boss/index.html")
+	http.ServeFile(w, r, "index.html")
 }
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
