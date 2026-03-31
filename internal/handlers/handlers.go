@@ -61,8 +61,14 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	contentType := mime.TypeByExtension(filepath.Ext(handler.Filename))
-	isText := strings.HasPrefix(contentType, "text/")
+	// contentType := mime.TypeByExtension(filepath.Ext(handler.Filename))
+	// isText := strings.HasPrefix(contentType, "text/")
+
+	ext := filepath.Ext(handler.Filename)
+	contentType := mime.TypeByExtension(ext)
+	isTextByExt := strings.HasSuffix(ext, ".txt") || strings.HasSuffix(ext, ".md") || strings.HasSuffix(ext, ".html") || strings.HasSuffix(ext, ".log") || strings.HasSuffix(ext, ".csv")
+	isTextByMime := strings.HasPrefix(contentType, "text/")
+	isText := isTextByExt || isTextByMime
 
 	if !isText {
 		w.Write(data)
