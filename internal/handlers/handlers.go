@@ -58,30 +58,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// contentType := mime.TypeByExtension(filepath.Ext(handler.Filename))
-	// isText := strings.HasPrefix(contentType, "text/")
-
-	/* ext := filepath.Ext(handler.Filename)
-	contentType := mime.TypeByExtension(ext)
-	isTextByExt := (strings.HasSuffix(ext, ".txt") ||
-		strings.HasSuffix(ext, ".md") ||
-		strings.HasSuffix(ext, ".csv") ||
-		strings.HasSuffix(ext, ".log") ||
-		strings.HasSuffix(ext, ".json") ||
-		strings.HasSuffix(ext, ".yaml") ||
-		strings.HasSuffix(ext, ".html"))
-
-	isTextByMime := strings.HasPrefix(contentType, "text/")
-	isText := isTextByExt || isTextByMime
-
-	if !isText {
-		w.Header().Set("Content-Type", "application/octet-stream")
-		w.Write(data)
-	} else {
-	*/
-	// передаем эти данные в функцию автоопределения из пакета service
-	// convertedString, err := service.ConvertString(string(data))
-	convertedString, err := service.ConvertString(data) // data — []byte из io.ReadAll(file)
+	convertedString, err := service.ConvertString(data)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -89,7 +66,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	// создаём локальный файл
 	localFileName := time.Now().UTC().String() + filepath.Ext(handler.Filename)
-	// localFileName := time.Now().UTC().Format("2006-01-02_15-04-05") + filepath.Ext(handler.Filename)
 	localFile, err := os.Create(localFileName)
 	if err != nil {
 		log.Println("error creating file:", err)
@@ -99,8 +75,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	defer localFile.Close()
 
 	// записываем в локальный файл конвертированную строку
-	// Сохраняем и отправляем как байты
-
 	_, err = localFile.Write(convertedString)
 	if err != nil {
 		log.Println("error writing to file:", err)
@@ -109,7 +83,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	//	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Write(convertedString) // отправляем в ответ
 	w.WriteHeader(http.StatusOK)
 
