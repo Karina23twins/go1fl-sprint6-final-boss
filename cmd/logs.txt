@@ -1,0 +1,1 @@
+error: 2026/03/31 13:43:06 server.go:3648: http: superfluous response.WriteHeader call from github.com/Yandex-Practicum/go1fl-sprint6-final/internal/handlers.UploadHandler (handlers.go:114)
