@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	// "fmt"
 	"io"
 	"log"
 	"mime"
@@ -65,14 +64,23 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	// isText := strings.HasPrefix(contentType, "text/")
 
 	ext := filepath.Ext(handler.Filename)
+	// fmt.Println(ext)
 	contentType := mime.TypeByExtension(ext)
-	isTextByExt := strings.HasSuffix(ext, ".txt") || strings.HasSuffix(ext, ".md") || strings.HasSuffix(ext, ".html") || strings.HasSuffix(ext, ".log") || strings.HasSuffix(ext, ".csv")
+	isTextByExt := (strings.HasSuffix(ext, ".txt") ||
+		strings.HasSuffix(ext, ".md") ||
+		strings.HasSuffix(ext, ".csv") ||
+		strings.HasSuffix(ext, ".log") ||
+		strings.HasSuffix(ext, ".json") ||
+		strings.HasSuffix(ext, ".yaml") ||
+		strings.HasSuffix(ext, ".html"))
+
 	isTextByMime := strings.HasPrefix(contentType, "text/")
 	isText := isTextByExt || isTextByMime
 
 	if !isText {
-		w.Write(data)
-		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Write([]byte(ext))
+		// w.Write([data)
+		// w.Header().Set("Content-Type", "application/octet-stream")
 	} else {
 		// передаем эти данные в функцию автоопределения из пакета service
 		// convertedString, err := service.ConvertString(string(data))
